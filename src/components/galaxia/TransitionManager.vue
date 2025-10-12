@@ -2,6 +2,7 @@
 <template>
     <v-card-text>
         <!-- BARRA DE HERRAMIENTAS -->
+         TRANSITION MANAGER
         <v-row class="mb-4">
             <v-col cols="12" class="d-flex justify-space-between align-center">
                 <v-btn color="primary" @click="enableLinking = !enableLinking"
