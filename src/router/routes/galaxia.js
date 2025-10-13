@@ -65,5 +65,40 @@ export default [
                 }, props: false,
             }
         ],
+
     },
+    {
+        path: "/ginstances",
+        name: "galaxia-ginstances-manager",
+        component: () =>
+            import(/* webpackChunkName: "about" */ "@/layouts/LayoutSsepi.vue"),
+        //beforeEnter: authGuard,
+        meta: { requiereAuth: true },
+        children: [
+            {
+                // Ruta PRINCIPAL de Galaxia - cambiamos path a ""
+                path: "",
+                name: "Mis-GInstances",
+                component: () =>
+                    import( /* webpackChunkName: "galaxia" */ "@/views/galaxia/InstanceDashboard.vue"),
+                //beforeEnter: authGuard,
+                meta: {
+                    requiereAuth: true,
+                    title: "Galaxia Workflow Manager Instances"
+                },
+                props: false,
+            },
+            {
+                path: '/ginstances/:id',
+                name: 'GInstanceDetail',
+                component: () => import(/* webpackChunkName: "galaxia" */'@/views/galaxia/InstanceDetail.vue'),
+                //beforeEnter: authGuard,
+                meta: {
+                    requiresAuth: true,
+                    title: 'Detalle de Instancia',
+                    breadcrumb: 'Detalle'
+                }
+            }
+        ]
+    }
 ]
