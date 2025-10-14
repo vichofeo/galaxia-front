@@ -17,9 +17,10 @@
       <v-alert type="info" dense class="mb-4">
         <div class="d-flex justify-space-between align-center">
           <div>
-            <strong>Proceso:</strong> {{ currentWorkitem.gw_gi_instance.gi_gp_process.name }} v{{ currentWorkitem.gw_gi_instance.gi_gp_process.version }}<br>
+            <strong>Proceso:</strong> {{ currentWorkitem.gw_gi_instance.gi_gp_process.name }} v{{
+              currentWorkitem.gw_gi_instance.gi_gp_process.version }}<br>
             <strong>Instancia:</strong> {{ currentWorkitem.gw_gi_instance.name }}<br>
-            <strong>Actividad:</strong> {{ currentWorkitem.gw_ga_activity.name }} 
+            <strong>Actividad:</strong> {{ currentWorkitem.gw_ga_activity.name }}
             <v-chip x-small :color="getActivityTypeColor(currentWorkitem.gw_ga_activity.type)" dark class="ml-1">
               {{ getActivityTypeText(currentWorkitem.gw_ga_activity.type) }}
             </v-chip>
@@ -37,23 +38,15 @@
 
       <!-- FORMULARIO DINÁMICO SEGÚN TIPO DE ACTIVIDAD -->
       <div v-if="currentWorkitem.gw_ga_activity.type === 'standalone'">
-        <GenericActivityForm 
-          :workitem="currentWorkitem"
-          :loading="executing"
-          @execute="executeActivity"
-          @cancel="close"
-        />
+        <GenericActivityForm :workitem="currentWorkitem" :loading="executing" @execute="executeActivity"
+          @cancel="close" />
       </div>
-      
+
       <div v-else-if="currentWorkitem.gw_ga_activity.normalized_name === 'browse_cds'">
-        <CdAvailabilityTable 
-          :workitem="currentWorkitem"
-          :loading="executing"
-          @execute="executeActivity"
-          @cancel="close"
-        />
+        <CdAvailabilityTable :workitem="currentWorkitem" :loading="executing" @execute="executeActivity"
+          @cancel="close" />
       </div>
-      
+
       <div v-else>
         <!-- FORMULARIO GENÉRICO PARA ACTIVIDADES NO ESPECÍFICAS -->
         <v-form v-model="valid" @submit.prevent="executeGenericActivity">
@@ -63,61 +56,35 @@
               Datos de Ejecución
             </v-card-title>
             <v-card-text>
-              <v-textarea
-                v-model="genericData.notes"
-                label="Observaciones / Comentarios"
-                placeholder="Ingresa cualquier observación relevante para esta actividad..."
-                rows="3"
-                outlined
-                clearable
-                :rules="[v => !!v || 'Las observaciones son requeridas']"
-              ></v-textarea>
-              
+              <v-textarea v-model="genericData.notes" label="Observaciones / Comentarios"
+                placeholder="Ingresa cualquier observación relevante para esta actividad..." rows="3" outlined clearable
+                :rules="[v => !!v || 'Las observaciones son requeridas']"></v-textarea>
+
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-select
-                    v-model="genericData.status"
-                    :items="statusOptions"
-                    label="Resultado de la actividad"
-                    outlined
-                    :rules="[v => !!v || 'El resultado es requerido']"
-                  ></v-select>
+                  <v-select v-model="genericData.status" :items="statusOptions" label="Resultado de la actividad"
+                    outlined :rules="[v => !!v || 'El resultado es requerido']"></v-select>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model="genericData.reference"
-                    label="Número de Referencia"
-                    placeholder="Ej: REF-001, TICKET-123"
-                    outlined
-                    clearable
-                  ></v-text-field>
+                  <v-text-field v-model="genericData.reference" label="Número de Referencia"
+                    placeholder="Ej: REF-001, TICKET-123" outlined clearable></v-text-field>
                 </v-col>
               </v-row>
 
               <!-- CAMPOS ADICIONALES DINÁMICOS -->
               <v-row v-if="genericData.status === 'rejected'">
                 <v-col cols="12">
-                  <v-textarea
-                    v-model="genericData.rejection_reason"
-                    label="Motivo del Rechazo"
-                    placeholder="Explica por qué se rechaza esta actividad..."
-                    rows="2"
-                    outlined
-                    :rules="[v => !!v || 'El motivo del rechazo es requerido']"
-                  ></v-textarea>
+                  <v-textarea v-model="genericData.rejection_reason" label="Motivo del Rechazo"
+                    placeholder="Explica por qué se rechaza esta actividad..." rows="2" outlined
+                    :rules="[v => !!v || 'El motivo del rechazo es requerido']"></v-textarea>
                 </v-col>
               </v-row>
 
               <v-row v-if="genericData.status === 'pending_review'">
                 <v-col cols="12">
-                  <v-textarea
-                    v-model="genericData.review_notes"
-                    label="Notas para Revisión"
-                    placeholder="Detalla qué aspectos necesitan revisión..."
-                    rows="2"
-                    outlined
-                    :rules="[v => !!v || 'Las notas de revisión son requeridas']"
-                  ></v-textarea>
+                  <v-textarea v-model="genericData.review_notes" label="Notas para Revisión"
+                    placeholder="Detalla qué aspectos necesitan revisión..." rows="2" outlined
+                    :rules="[v => !!v || 'Las notas de revisión son requeridas']"></v-textarea>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -149,20 +116,14 @@
               </v-row>
             </v-card-text>
           </v-card>
-          
+
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn @click="close" :disabled="executing" color="grey">
               <v-icon left>mdi-close</v-icon>
               Cancelar
             </v-btn>
-            <v-btn 
-              color="primary" 
-              type="submit"
-              :loading="executing"
-              :disabled="!valid"
-              large
-            >
+            <v-btn color="primary" type="submit" :loading="executing" :disabled="!valid" large>
               <v-icon left>mdi-check-all</v-icon>
               Completar Actividad
             </v-btn>
@@ -219,7 +180,7 @@ export default {
       this.executing = true
       try {
         console.log('🔨 Ejecutando actividad:', this.currentWorkitem.itemId, 'con datos:', inputData)
-        
+
         const result = await this.$store.dispatch('galaxia/executeWorkitem', {
           workitemId: this.currentWorkitem.itemId,
           inputData: {
@@ -230,11 +191,11 @@ export default {
             activity_name: this.currentWorkitem.gw_ga_activity.name
           }
         })
-        
+
         if (result.ok) {
           this.successMessage = '✅ Actividad completada exitosamente'
           this.showSuccess = true
-          
+
           // Esperar un momento antes de cerrar para que el usuario vea el mensaje
           setTimeout(() => {
             this.$emit('completed', result.data)
@@ -249,17 +210,17 @@ export default {
         this.executing = false
       }
     },
-    
+
     async executeGenericActivity() {
       await this.executeActivity(this.genericData)
     },
-    
+
     close() {
       if (!this.executing) {
         this.$emit('close')
       }
     },
-    
+
     getActivityTypeText(type) {
       const types = {
         start: 'Inicio',
@@ -329,21 +290,21 @@ export default {
     getElapsedTimeColor(startTimestamp) {
       const now = Math.floor(Date.now() / 1000)
       const elapsed = now - startTimestamp
-      
+
       if (elapsed > 86400) return 'red'    // Más de 1 día
       if (elapsed > 3600) return 'orange'  // Más de 1 hora
       return 'green'                        // Menos de 1 hora
     }
   },
-  
+
   mounted() {
     console.log('🎯 ActivityExecutor montado para workitem:', this.currentWorkitem)
-    
+
     // Auto-completar algunos campos basados en la actividad
     if (this.currentWorkitem.gw_ga_activity.description) {
       this.genericData.notes = `Ejecutado: ${this.currentWorkitem.gw_ga_activity.description}`
     }
-    
+
     // Generar referencia automática
     this.genericData.reference = `REF-${this.currentWorkitem.itemId}-${Math.floor(Date.now() / 1000)}`
   }

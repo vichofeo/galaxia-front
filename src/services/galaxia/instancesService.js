@@ -11,7 +11,8 @@ export const createGInstance = async (data) => {
 }
 
 export const getListGInstances = async (params) => {
-    const res = await http().get(`/galaxia/guinstances`, { params })
+    console.log("\n\n................galaxia/guinstances::", params)
+    const res = await http().get(`/galaxia/guinstances`, {params} )
     return res.data
 }
 

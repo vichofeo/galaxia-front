@@ -1,5 +1,6 @@
 <template>
-  <v-container fluid v-if="instance">
+  <div>
+    <v-container fluid v-if="instance">
     <!-- Header -->
     <v-row class="mb-4">
       <v-col cols="12">
@@ -9,7 +10,7 @@
             Detalle de Instancia #{{ instance.id }}
           </v-card-title>
           <v-card-subtitle>
-            {{ instance.process.name }} v{{ instance.process.version }}
+            {{ instance.gi_gp_process.name }} v{{ instance.gi_gp_process.version }}
           </v-card-subtitle>
         </v-card>
       </v-col>
@@ -23,22 +24,18 @@
             <v-icon left>mdi-history</v-icon>
             Historial de Actividades
           </v-card-title>
-          <v-card-text>
+          <v-card-text v-if="sortedWorkitems?.length>0">
             <v-timeline dense>
-              <v-timeline-item
-                v-for="workitem in sortedWorkitems"
-                :key="workitem.id"
-                :color="getWorkitemColor(workitem)"
-                small
-              >
+              <v-timeline-item v-for="workitem in sortedWorkitems" :key="workitem.id"
+                :color="getWorkitemColor(workitem)" small >
                 <template v-slot:opposite>
-                  <span class="caption">{{ formatDate(workitem.createdAt) }}</span>
+                  <span class="caption">{{ formatDate(workitem.started) }}</span>
                 </template>
                 <div>
-                  <strong>{{ workitem.activity.name }}</strong>
-                  <div class="caption">{{ workitem.activity.type }}</div>
-                  <div class="caption" v-if="workitem.completedAt">
-                    Completado: {{ formatDate(workitem.completedAt) }}
+                  <strong>{{ workitem.gw_ga_activity.name }}</strong>
+                  <div class="caption">{{ workitem.gw_ga_activity.type }}</div>
+                  <div class="caption" v-if="workitem.ended">
+                    Completado: {{ formatDate(workitem.ended) }}
                   </div>
                   <v-chip x-small v-if="workitem.status === 'pending'" color="orange">
                     Pendiente
@@ -63,11 +60,12 @@
               {{ getStatusText(instance.status) }}
             </v-chip>
             <div class="mt-2">
-              <strong>Creado:</strong> {{ formatDate(instance.createdAt) }}
+              <strong>Creado:</strong> {{ formatDate(instance.started) }}
             </div>
             <div>
-              <strong>Por:</strong> {{ instance.creator.username }}
-            </div>
+              <strong>Por:</strong> <!-- {{ instance.creator.username }}-->
+              {{ instance.owner }}
+            </div>1
           </v-card-text>
         </v-card>
 
@@ -78,12 +76,7 @@
           </v-card-title>
           <v-card-text>
             <div v-if="Object.keys(instance.data || {}).length > 0">
-              <v-chip
-                v-for="(value, key) in instance.data"
-                :key="key"
-                small
-                class="ma-1"
-              >
+              <v-chip v-for="(value, key) in instance.data" :key="key" small class="ma-1">
                 {{ key }}: {{ value }}
               </v-chip>
             </div>
@@ -99,23 +92,13 @@
             Acciones
           </v-card-title>
           <v-card-actions>
-            <v-btn 
-              color="primary" 
-              block 
-              @click="executeCurrentActivity"
-              :disabled="!hasPendingWorkitems"
-            >
+            <v-btn color="primary" block @click="executeCurrentActivity" :disabled="!hasPendingWorkitems">
               <v-icon left>mdi-play</v-icon>
               Continuar Ejecución
             </v-btn>
           </v-card-actions>
           <v-card-actions>
-            <v-btn 
-              text 
-              color="secondary" 
-              block 
-              @click="$router.push('/galaxia/dashboard')"
-            >
+            <v-btn text color="secondary" block @click="$router.push({name:'UserDashboardView'})">
               <v-icon left>mdi-arrow-left</v-icon>
               Volver al Dashboard
             </v-btn>
@@ -133,9 +116,13 @@
       Volver al Dashboard
     </v-btn>
   </v-container>
+  </div>
 </template>
 
 <script>
+import * as srv from "@/services/galaxia/uiWorkItemService"
+import * as isrv from "@/services/galaxia/instancesService"
+
 export default {
   name: 'InstanceDetail',
   data() {
@@ -146,14 +133,14 @@ export default {
   },
   computed: {
     sortedWorkitems() {
-      if (!this.instance || !this.instance.Workitems) return []
-      return [...this.instance.Workitems].sort((a, b) => 
-        new Date(a.createdAt) - new Date(b.createdAt)
+      if (!this.instance || !this.instance.gi_gw_workitems) return []
+      return [...this.instance.gi_gw_workitems].sort((a, b) =>
+        a.started - b.started
       )
     },
     hasPendingWorkitems() {
-      return this.instance && this.instance.Workitems && 
-             this.instance.Workitems.some(w => w.status === 'pending')
+      return this.instance && this.instance.gi_gw_workitems &&
+        this.instance.gi_gw_workitems.some(w => w.status === 'pending')
     }
   },
   async mounted() {
@@ -164,14 +151,15 @@ export default {
       this.loading = true
       try {
         const instanceId = this.$route.params.id
-        const response = await this.$axios.get(`/api/instances/${instanceId}`)
+        const response = await isrv.getDetailGInstance(instanceId)
+        //await this.$axios.get(`/api/instances/${instanceId}`)
+        
         this.instance = response.data
+        console.log("##########", this.instance)
       } catch (error) {
         console.error('Error loading instance:', error)
-        this.$store.dispatch('showSnackbar', {
-          message: 'Error al cargar la instancia',
-          color: 'error'
-        })
+        this.$notify('Error al cargar la instancia','error')
+        
       } finally {
         this.loading = false
       }
@@ -211,19 +199,19 @@ export default {
     },
     executeCurrentActivity() {
       if (!this.hasPendingWorkitems) return
-      
+
       // TODO: Reemplazar con usuario real
       const userId = 'admin'
-      const userWorkitem = this.instance.Workitems.find(w => 
+      const userWorkitem = this.instance.gi_gw_workitems.find(w =>
         w.status === 'pending' && w.assignedTo === userId
       )
-      
+
       if (userWorkitem) {
         this.$router.push({
           name: 'ActivityExecutor',
-          params: { 
-            instanceId: this.instance.id,
-            workitemId: userWorkitem.id
+          params: {
+            instanceId: this.instance.instanceId,
+            workitemId: userWorkitem.itemId
           }
         })
       } else {

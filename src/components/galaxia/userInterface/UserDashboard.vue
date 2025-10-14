@@ -26,7 +26,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      
+
       <v-col cols="12" sm="6" md="3">
         <v-card class="text-center" color="orange lighten-5">
           <v-card-text>
@@ -36,7 +36,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      
+
       <v-col cols="12" sm="6" md="3">
         <v-card class="text-center" color="green lighten-5">
           <v-card-text>
@@ -46,7 +46,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      
+
       <v-col cols="12" sm="6" md="3">
         <v-card class="text-center" color="purple lighten-5">
           <v-card-text>
@@ -90,19 +90,15 @@
           </v-card-title>
           <v-card-text class="pa-0">
             <v-list dense>
-              <v-list-item 
-                v-for="process in availableProcesses" 
-                :key="process.id"
-                @click="startNewInstance(process)"
-                class="mb-2"
-              >
+              <v-list-item v-for="process in availableProcesses" :key="process.id" @click="startNewInstance(process)"
+                class="mb-2">
                 <v-list-item-icon>
                   <v-icon color="primary">mdi-rocket-launch</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>{{ process.name }}</v-list-item-title>
                   <v-list-item-subtitle>
-                    v{{ process.version }} • {{ process.activityCount }} actividades
+                    v{{ process.version }} • {{ process.gp_ga_activities.length }} actividades
                   </v-list-item-subtitle>
                 </v-list-item-content>
                 <v-list-item-action>
@@ -111,7 +107,7 @@
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              
+
               <v-list-item v-if="availableProcesses.length === 0">
                 <v-list-item-content>
                   <v-list-item-title class="text-center grey--text">
@@ -155,10 +151,7 @@ import InstanceTracker from './InstanceTracker.vue'
 
 export default {
   name: 'UserDashboard',
-  components: {
-    WorkitemList,
-    InstanceTracker
-  },
+  components: { WorkitemList, InstanceTracker },
   data() {
     return {
       loading: false,
@@ -189,7 +182,7 @@ export default {
       } catch (error) {
         console.error('Error loading dashboard:', error)
         this.$notify('Error al cargar el dashboard', 'error')
-        
+
       } finally {
         this.loading = false
       }
@@ -198,7 +191,7 @@ export default {
       try {
         // TODO: Reemplazar con usuario real
         const userId = 'admin'
-        const params= { userId, status: 'pending' }
+        const params = { userId, status: 'pending' }
         const response = await srv.getListWorkItems(params)
         /*await this.$axios.get('/api/workitems/user', {
           params: { userId, status: 'pending' }
@@ -211,8 +204,9 @@ export default {
     },
     async loadAvailableProcesses() {
       try {
-        const params= { status: 'active' }
-        const response = await isrv.getGProcesses(params)
+        //const params = { status: 'active' }
+        const param = 'active'
+        const response = await isrv.getGProcesses(param)
         /*await this.$axios.get('/api/processes', {
           params: { status: 'active' }
         })*/
@@ -226,12 +220,12 @@ export default {
       try {
         // TODO: Reemplazar con usuario real
         const userId = 'admin'
-        const params= { 
-            userId,
-            limit: 5,
-            sort: 'updatedAt',
-            order: 'DESC'
-          }
+        const params = {
+          userId,
+          limit: 5,
+          sort: 'updatedAt',
+          order: 'DESC'
+        }
         const response = await isrv.getListGInstances(params)
         /*await this.$axios.get('/api/instances', {
           params: { 
@@ -254,22 +248,22 @@ export default {
     executeWorkitem(workitem) {
       this.$router.push({
         name: 'ActivityExecutor',
-        params: { 
+        params: {
           instanceId: workitem.instanceId,
-          workitemId: workitem.id 
+          workitemId: workitem.itemId
         }
       })
     },
     startNewInstance(process) {
       this.$router.push({
         name: 'InstanceCreator',
-        params: { processId: process.id }
+        params: { processId: process.pId }
       })
     },
     viewInstanceDetail(instance) {
       this.$router.push({
-        name: 'InstanceDetail',
-        params: { id: instance.id }
+        name: 'GInstanceDetail',
+        params: { id: instance.instanceId }
       })
     }
   }

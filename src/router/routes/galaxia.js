@@ -3,7 +3,7 @@
 export default [
     {
         path: "/galaxia",
-        name: "galaxia-manager",
+        //name: "pGalaxiaManager",
         component: () =>
             import(/* webpackChunkName: "about" */ "@/layouts/LayoutSsepi.vue"),
         //beforeEnter: authGuard,
@@ -69,7 +69,7 @@ export default [
     },
     {
         path: "/ginstances",
-        name: "galaxia-ginstances-manager",
+        //name: "galaxia-ginstances-manager",
         component: () =>
             import(/* webpackChunkName: "about" */ "@/layouts/LayoutSsepi.vue"),
         //beforeEnter: authGuard,
@@ -89,16 +89,84 @@ export default [
                 props: false,
             },
             {
-                path: '/ginstances/:id',
+                //path: 'ginstances/:id',
+                path: 'iusr/:id',
                 name: 'GInstanceDetail',
-                component: () => import(/* webpackChunkName: "galaxia" */'@/views/galaxia/InstanceDetail.vue'),
+                component: () => import(/* webpackChunkName: "galaxia" */'@/views/galaxia/GInstanceDetail.vue'),
                 //beforeEnter: authGuard,
                 meta: {
                     requiresAuth: true,
                     title: 'Detalle de Instancia',
                     breadcrumb: 'Detalle'
+                },
+                props: true,
+            },
+            //ver006
+            {
+                path: 'udashboard',
+                name: 'UserDashboardView',
+                component: () => import(/* webpackChunkName: "galaxiaDashboard" */'@/views/galaxia/UserDashboardView.vue'),
+                //beforeEnter: authGuard,
+                meta: {
+                    requiresAuth: true,
+                    title: 'Dashboard Usuario',
+                    breadcrumb: 'Dashboard'
+                },
+                props: false,
+            },
+            {
+                path: 'execute/:instanceId/:workitemId',
+                name: 'ActivityExecutor',
+                component: () => import('@/components/galaxia/ActivityExecutor.vue'),
+                meta: {
+                    requiresAuth: true,
+                    title: 'Ejecutar Actividad',
+                    breadcrumb: 'Ejecutar'
                 }
             }
+
         ]
-    }
+    },
+
+    // /galaxia-front/src/router/index.js - AGREGAR:
+
+    {
+        path: "/templates",
+        component: () =>
+            import(/* webpackChunkName: "about" */ "@/layouts/LayoutSsepi.vue"),
+        //beforeEnter: authGuard,
+        meta: { requiereAuth: true },
+        children: [{
+            path: '',
+            name: 'TemplateManager',
+            component: () => import('@/views/galaxia/TemplateManager.vue'),
+            meta: {
+                requiresAuth: true,
+                title: 'Gestor de Templates',
+                breadcrumb: 'Templates'
+            }
+        },
+        {
+            path: 'library',
+            name: 'TemplateLibrary',
+            component: () => import('@/components/galaxia/TemplateLibrary.vue'),
+            meta: {
+                requiresAuth: true,
+                title: 'Biblioteca de Templates',
+                breadcrumb: 'Biblioteca'
+            }
+        },
+        {
+            path: 'activities/:activityId/template',
+            name: 'ActivityTemplateEditor',
+            component: () => import('@/components/galaxia/TemplateEditor.vue'),
+            meta: {
+                requiresAuth: true,
+                title: 'Editor de Template',
+                breadcrumb: 'Template'
+            }
+        }
+        ],
+    },
+
 ]

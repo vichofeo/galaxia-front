@@ -1,15 +1,9 @@
 <template>
   <div>
-    <v-data-table
-      :headers="headers"
-      :items="instances"
-      :loading="loading"
-      hide-default-footer
-      class="elevation-0"
-    >
+    <v-data-table :headers="headers" :items="instances" :loading="loading" hide-default-footer class="elevation-0">
       <template v-slot:item.process.name="{ item }">
-        <div class="font-weight-medium">{{ item.process.name }}</div>
-        <div class="caption text--secondary">v{{ item.process.version }}</div>
+        <div class="font-weight-medium">{{ item.gi_gp_process.name }}</div>
+        <div class="caption text--secondary">v{{ item.gi_gp_process.version }}</div>
       </template>
 
       <template v-slot:item.status="{ item }">
@@ -37,13 +31,7 @@
       <template v-slot:item.actions="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn 
-              icon 
-              small 
-              @click="viewInstance(item)"
-              v-on="on"
-              color="primary"
-            >
+            <v-btn icon small @click="viewInstance(item)" v-on="on" color="primary">
               <v-icon small>mdi-eye</v-icon>
             </v-btn>
           </template>
@@ -52,13 +40,7 @@
 
         <v-tooltip bottom v-if="item.status === 'active'">
           <template v-slot:activator="{ on }">
-            <v-btn 
-              icon 
-              small 
-              @click="executeInstance(item)"
-              v-on="on"
-              color="success"
-            >
+            <v-btn icon small @click="executeInstance(item)" v-on="on" color="success">
               <v-icon small>mdi-play</v-icon>
             </v-btn>
           </template>
@@ -80,22 +62,16 @@
 export default {
   name: 'InstanceTracker',
   props: {
-    instances: {
-      type: Array,
-      default: () => []
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    }
+    instances: { type: Array, default: () => [] },
+    loading: { type: Boolean, default: false }
   },
   data() {
     return {
       headers: [
-        { text: 'Proceso', value: 'process.name', sortable: true },
+        { text: 'Proceso', value: 'gi_gp_process.name', sortable: true },
         { text: 'Estado', value: 'status', sortable: true },
-        { text: 'Actividad Actual', value: 'currentActivity', sortable: false },
-        { text: 'Última Actualización', value: 'updatedAt', sortable: true },
+        { text: 'Actividad Actual', value: 'name', sortable: false },
+        { text: 'Última Actualización', value: 'ended', sortable: true },
         { text: 'Acciones', value: 'actions', sortable: false, align: 'center', width: '120' }
       ]
     }
@@ -103,9 +79,9 @@ export default {
   methods: {
     getCurrentActivity(instance) {
       // Encontrar la actividad actual basada en workitems pendientes
-      if (instance.Workitems && instance.Workitems.length > 0) {
-        const pendingWorkitem = instance.Workitems.find(w => w.status === 'pending')
-        return pendingWorkitem ? pendingWorkitem.Activity : null
+      if (instance.Workitems && instance.gi_gw_workitems.length > 0) {
+        const pendingWorkitem = instance.gi_gw_workitems.find(w => w.status === 'pending')
+        return pendingWorkitem ? pendingWorkitem.gp_ga_activities : null
       }
       return null
     },
@@ -127,7 +103,7 @@ export default {
     },
     getActivityColor(activity) {
       if (!activity) return 'grey'
-      
+
       const colors = {
         start: 'green',
         end: 'red',
@@ -151,21 +127,21 @@ export default {
       // Encontrar workitem pendiente para este usuario
       // TODO: Reemplazar con usuario real
       const userId = 'admin'
-      const userWorkitem = instance.Workitems.find(w => 
+      const userWorkitem = instance.gi_gw_workitems.find(w =>
         w.status === 'pending' && w.assignedTo === userId
       )
-      
+
       if (userWorkitem) {
         this.$router.push({
           name: 'ActivityExecutor',
-          params: { 
-            instanceId: instance.id,
-            workitemId: userWorkitem.id
+          params: {
+            instanceId: instance.instanceId,
+            workitemId: userWorkitem.itemId
           }
         })
       } else {
-        this.$notify('No hay tareas pendientes para esta instancia','warning')
-        
+        this.$notify('No hay tareas pendientes para esta instancia', 'warning')
+
       }
     }
   }

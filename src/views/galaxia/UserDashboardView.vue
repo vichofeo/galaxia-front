@@ -1,18 +1,19 @@
 <template>
-  <user-dashboard></user-dashboard>
+  <UserDashboard/>
 </template>
 
 <script>
-import UserDashboard from '@/components/galaxia/UserDashboard.vue'
+import UserDashboard from '@/components/galaxia/userInterface/UserDashboard.vue'
 
 export default {
   name: 'UserDashboardView',
-  components: {
-    UserDashboard
-  },
+  components: {    UserDashboard  },
   meta: {
     title: 'Dashboard - Galaxia',
     requiresAuth: true
+  },
+  data(){
+    return{}
   }
 }
 </script>
