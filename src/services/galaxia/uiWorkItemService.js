@@ -14,3 +14,20 @@ export const saveCompleteWorkItem = async (param,data) => {
     const res = await http().post(`/galaxia/ui/workitem/${param}/complete`,data)
     return res.data
 }
+
+//=========== varios
+
+export const getInstanceWorkitems = async (param, params) => {
+    const res = await http().get(`/galaxia/wi/instances/${param}/workitems`, {params})
+    return res.data
+}
+
+export const getWorkitemUsr = async (param, params) => {
+    const res = await http().get(`/galaxia/wi/user/${param}`, {params})
+    return res.data
+}
+
+export const getListWorkitems = async (param) => {
+    const res = await http().get(`/galaxia/wi/${param}`)
+    return res.data
+}

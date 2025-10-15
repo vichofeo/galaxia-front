@@ -39,16 +39,9 @@
               </v-tooltip>
             </v-card-title>
             <v-card-text class="pa-0">
-              <v-textarea
-                v-model="template"
-                placeholder="Escribe tu template aquí...&#10;Usa {{ variable }} para variables&#10;Ej: {{ nombre }}, {{ email }}, {{ comentario }}"
-                outlined
-                auto-grow
-                rows="12"
-                hide-details
-                class="code-textarea"
-                @input="onTemplateChange"
-              ></v-textarea>
+              <v-textarea v-model="template"
+                :placeholder="'Escribe tu template aquí...&#10;Usa {{ variable }} para variables&#10;Ej: {{ nombre }}, {{ email }}, {{ comentario }}'"
+                outlined auto-grow rows="12" hide-details class="code-textarea" @input="onTemplateChange"></v-textarea>
             </v-card-text>
           </v-card>
         </v-col>
@@ -69,17 +62,11 @@
               Variables Detectadas ({{ extractedVariables.length }})
             </v-card-title>
             <v-card-text>
-              <v-chip
-                v-for="variable in extractedVariables"
-                :key="variable"
-                small
-                class="ma-1"
-                color="primary"
-              >
+              <v-chip v-for="variable in extractedVariables" :key="variable" small class="ma-1" color="primary">
                 <v-icon small left>mdi-variable</v-icon>
                 {{ variable }}
               </v-chip>
-              
+
               <div v-if="extractedVariables.length === 0" class="text-center py-4">
                 <v-icon color="grey lighten-1" size="48">mdi-code-braces</v-icon>
                 <div class="caption grey--text mt-2">No se detectaron variables</div>
@@ -100,14 +87,8 @@
             </template>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
-            <dynamic-form
-              :form-config="formConfig"
-              :initial-data="sampleData"
-              submit-text="Aplicar Configuración"
-              show-preview
-              hide-actions
-              @config-generated="onConfigGenerated"
-            ></dynamic-form>
+            <dynamic-form :form-config="formConfig" :initial-data="sampleData" submit-text="Aplicar Configuración"
+              show-preview hide-actions @config-generated="onConfigGenerated"></dynamic-form>
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
@@ -118,12 +99,7 @@
       <v-btn text @click="$emit('cancel')">
         Cancelar
       </v-btn>
-      <v-btn 
-        color="primary" 
-        @click="saveTemplate"
-        :loading="saving"
-        :disabled="validationErrors.length > 0"
-      >
+      <v-btn color="primary" @click="saveTemplate" :loading="saving" :disabled="validationErrors.length > 0">
         <v-icon left>mdi-content-save</v-icon>
         Guardar Template
       </v-btn>
@@ -165,9 +141,9 @@ export default {
   computed: {
     renderedPreview() {
       if (!this.template) return '<div class="grey--text">Escribe un template para ver la vista previa</div>';
-      
+
       let preview = this.template;
-      
+
       // Reemplazar variables con datos de muestra
       this.extractedVariables.forEach(variable => {
         const value = this.sampleData[variable] || `[${variable}]`;
@@ -176,7 +152,7 @@ export default {
           `<span class="variable-value">${value}</span>`
         );
       });
-      
+
       return preview.replace(/\n/g, '<br>');
     }
   },
@@ -197,11 +173,11 @@ export default {
     analyzeTemplate() {
       // Extraer variables
       this.extractedVariables = templateEngine.extractVariables(this.template);
-      
+
       // Validar template
       const validation = templateEngine.validateTemplate(this.template);
       this.validationErrors = validation.errors;
-      
+
       // Generar configuración de formulario si hay variables
       if (this.extractedVariables.length > 0) {
         this.formConfig = templateEngine.generateFormConfig(this.template);
@@ -210,7 +186,7 @@ export default {
         this.formConfig = [];
         this.sampleData = {};
       }
-      
+
       this.renderKey++;
     },
     initializeSampleData() {
@@ -222,18 +198,18 @@ export default {
     },
     getSampleValue(variable) {
       const name = variable.toLowerCase();
-      
+
       if (name.includes('nombre') || name.includes('name')) return 'Juan Pérez';
       if (name.includes('email')) return 'juan@ejemplo.com';
       if (name.includes('fecha') || name.includes('date')) return '2024-01-15';
       if (name.includes('cantidad') || name.includes('amount')) return '100';
       if (name.includes('estado') || name.includes('status')) return 'pending';
-      
+
       return `Valor de ${variable}`;
     },
     validateTemplate() {
       this.analyzeTemplate();
-      
+
       if (this.validationErrors.length === 0) {
         this.$store.dispatch('showSnackbar', {
           message: 'Template válido',
@@ -260,7 +236,7 @@ export default {
         });
         return;
       }
-      
+
       this.saving = true;
       try {
         await this.$emit('save', {
@@ -268,7 +244,7 @@ export default {
           formConfig: this.formConfig,
           activityId: this.activityId
         });
-        
+
         this.$store.dispatch('showSnackbar', {
           message: 'Template guardado exitosamente',
           color: 'success'
@@ -293,7 +269,9 @@ export default {
   margin: 0 auto;
 }
 
-.code-editor-container, .preview-container, .variables-container {
+.code-editor-container,
+.preview-container,
+.variables-container {
   height: 400px;
 }
 

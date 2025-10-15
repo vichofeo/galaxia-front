@@ -298,6 +298,7 @@ export default {
   },
 
   mounted() {
+    console.log("\n components/galaxia/ActivityExecutor")
     console.log('🎯 ActivityExecutor montado para workitem:', this.currentWorkitem)
 
     // Auto-completar algunos campos basados en la actividad

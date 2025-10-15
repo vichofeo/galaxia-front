@@ -15,7 +15,7 @@
             <strong>Proceso:</strong> {{ workitem.instance.process.name }} v{{ workitem.instance.process.version }}
           </v-col>
           <v-col cols="12" md="6">
-            <strong>Instancia:</strong> #{{ workitem.instance.id }} • 
+            <strong>Instancia:</strong> #{{ workitem.instance.id }} •
             <v-chip x-small :color="getStatusColor(workitem.instance.status)">
               {{ workitem.instance.status }}
             </v-chip>
@@ -40,26 +40,12 @@
             </v-alert>
 
             <!-- Campos Dinámicos según el tipo de actividad -->
-            <v-text-field
-              v-model="formData.name"
-              label="Nombre"
-              :rules="[v => !!v || 'Nombre requerido']"
-              class="mb-4"
-            ></v-text-field>
+            <v-text-field v-model="formData.name" label="Nombre" :rules="[v => !!v || 'Nombre requerido']"
+              class="mb-4"></v-text-field>
 
-            <v-textarea
-              v-model="formData.description"
-              label="Descripción"
-              rows="3"
-              class="mb-4"
-            ></v-textarea>
+            <v-textarea v-model="formData.description" label="Descripción" rows="3" class="mb-4"></v-textarea>
 
-            <v-select
-              v-model="formData.priority"
-              :items="priorityOptions"
-              label="Prioridad"
-              class="mb-4"
-            ></v-select>
+            <v-select v-model="formData.priority" :items="priorityOptions" label="Prioridad" class="mb-4"></v-select>
 
             <!-- Aquí irían campos específicos según la actividad -->
             <div class="mb-4">
@@ -78,12 +64,7 @@
             Esta es una actividad automática. Se ejecutará inmediatamente al iniciar.
           </v-alert>
           <div class="text-center">
-            <v-progress-circular
-              indeterminate
-              color="primary"
-              size="64"
-              class="mb-4"
-            ></v-progress-circular>
+            <v-progress-circular indeterminate color="primary" size="64" class="mb-4"></v-progress-circular>
             <div>Ejecutando actividad automática...</div>
           </div>
         </div>
@@ -105,42 +86,25 @@
       <!-- Acciones -->
       <v-card-actions class="pa-4">
         <v-spacer></v-spacer>
-        
-        <v-btn 
-          text 
-          @click="$router.go(-1)"
-          :disabled="executing"
-        >
+
+        <v-btn text @click="$router.go(-1)" :disabled="executing">
           <v-icon left>mdi-arrow-left</v-icon>
           Volver
         </v-btn>
 
-        <v-btn 
-          v-if="workitem.activity.isInteractive && !activityCompleted"
-          color="primary"
-          @click="completeActivity"
-          :loading="executing"
-          :disabled="!formValid"
-        >
+        <v-btn v-if="workitem.activity.isInteractive && !activityCompleted" color="primary" @click="completeActivity"
+          :loading="executing" :disabled="!formValid">
           <v-icon left>mdi-check</v-icon>
           Completar Actividad
         </v-btn>
 
-        <v-btn 
-          v-else-if="!workitem.activity.isInteractive && !activityCompleted"
-          color="primary"
-          @click="executeAutomaticActivity"
-          :loading="executing"
-        >
+        <v-btn v-else-if="!workitem.activity.isInteractive && !activityCompleted" color="primary"
+          @click="executeAutomaticActivity" :loading="executing">
           <v-icon left>mdi-play</v-icon>
           Ejecutar Automáticamente
         </v-btn>
 
-        <v-btn 
-          v-else
-          color="success"
-          @click="$router.push('/galaxia/dashboard')"
-        >
+        <v-btn v-else color="success" @click="$router.push('/galaxia/dashboard')">
           <v-icon left>mdi-home</v-icon>
           Volver al Dashboard
         </v-btn>
@@ -182,7 +146,7 @@ export default {
   },
   async mounted() {
     await this.loadWorkitem()
-    
+
     // Si es automática, ejecutar inmediatamente
     if (this.workitem && !this.workitem.activity.isInteractive) {
       this.executeAutomaticActivity()
@@ -198,7 +162,7 @@ export default {
       } catch (error) {
         console.error('Error loading workitem:', error)
         this.$notify('Error al cargar la actividad', 'error')
-        
+
       }
     },
     async completeActivity() {
@@ -208,14 +172,14 @@ export default {
         /*await this.$axios.post(`/api/workitems/${this.workitem.id}/complete`, {
           resultData: this.formData
         })*/
-        
+
         this.activityCompleted = true
-        this.$notify('Actividad completada exitosamente','success')
-        
+        this.$notify('Actividad completada exitosamente', 'success')
+
       } catch (error) {
         console.error('Error completing activity:', error)
-        this.$notify('Error al completar la actividad','error')
-        
+        this.$notify('Error al completar la actividad', 'error')
+
       } finally {
         this.executing = false
       }
@@ -225,19 +189,19 @@ export default {
       try {
         // Simular ejecución automática
         await new Promise(resolve => setTimeout(resolve, 2000))
-        const resultData= { automated: true, executedAt: new Date().toISOString() }
+        const resultData = { automated: true, executedAt: new Date().toISOString() }
         await srv.saveCompleteWorkItem(this.workitem.id, resultData)
         /*await this.$axios.post(`/api/workitems/${this.workitem.id}/complete`, {
           resultData: { automated: true, executedAt: new Date().toISOString() }
         })*/
-        
+
         this.activityCompleted = true
-        this.$notify('Actividad automática ejecutada','success')
-        
+        this.$notify('Actividad automática ejecutada', 'success')
+
       } catch (error) {
         console.error('Error executing automatic activity:', error)
         this.$notify('Error en actividad automática', 'error')
-        
+
       } finally {
         this.executing = false
       }

@@ -117,7 +117,7 @@ export default [
             {
                 path: 'execute/:instanceId/:workitemId',
                 name: 'ActivityExecutor',
-                component: () => import('@/components/galaxia/ActivityExecutor.vue'),
+                component: () => import('@/components/galaxia/userInterface/ActivityExecutor.vue'),
                 meta: {
                     requiresAuth: true,
                     title: 'Ejecutar Actividad',
@@ -149,7 +149,7 @@ export default [
         {
             path: 'library',
             name: 'TemplateLibrary',
-            component: () => import('@/components/galaxia/TemplateLibrary.vue'),
+            component: () => import('@/components/galaxia/forms/TemplateLibrary.vue'),
             meta: {
                 requiresAuth: true,
                 title: 'Biblioteca de Templates',
@@ -159,7 +159,7 @@ export default [
         {
             path: 'activities/:activityId/template',
             name: 'ActivityTemplateEditor',
-            component: () => import('@/components/galaxia/TemplateEditor.vue'),
+            component: () => import('@/components/galaxia/forms/TemplateEditor.vue'),
             meta: {
                 requiresAuth: true,
                 title: 'Editor de Template',
