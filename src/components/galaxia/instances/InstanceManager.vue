@@ -329,7 +329,7 @@ export default {
 
                 const instanceData = {
                     processId: this.newInstance.processId,
-                    createdBy: userId,
+                    owner: userId,
                     initialData: {
                         notes: this.newInstance.notes,
                         createdAt: new Date().toISOString()
@@ -375,7 +375,7 @@ console.log("######### work item navigatde", workitems)
                 // 2. Si solo hay un workitem, ir directamente
                 
                 if (workitems.length === 1) {
-                    this.navigateToActivityExecutor(instance.id, workitems[0].id);
+                    this.navigateToActivityExecutor(instance.id, workitems[0].itemId);
                     return;
                 }
 
@@ -412,8 +412,9 @@ console.log("######### work item navigatde", workitems)
                     }
                 ];
                 const user_id = 'admin'
-                const params = { status: 'pending' }
-                const result = await wisrv.getWorkitemUsr(user_id, {})
+                const params = { status: 'pending', userId: user_id }
+                const result = await wisrv.getInstanceWorkitems(instanceId, params)
+                //await wisrv.getWorkitemUsr(user_id, {})
                 const workitem =  result.data
                 //await wisrv.getInstanceWorkitems(instanceId, params)
 
