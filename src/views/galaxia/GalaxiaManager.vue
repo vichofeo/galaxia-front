@@ -28,7 +28,7 @@
                             <ProcessList />
                         </v-tab-item>
                         <v-tab-item>
-                            <ActivityManager />
+                            ActivityManager
                         </v-tab-item>
                         <v-tab-item>
                             <ProcessMonitor />
@@ -45,15 +45,16 @@
 
 <script>
 import ProcessList from '@/components/galaxia/ProcessList.vue'
-import ActivityManager from '@/components/galaxia/ActivityManager.vue'
+
 import ProcessMonitor from '@/components/galaxia/ProcessMonitor.vue'
 import ProcessCreator from '@/components/galaxia/ProcessCreator.vue'
 
+//import { galaxiaService } from '@/services/galaxia/galaxiaService'
 export default {
     name: 'GalaxiaManager',
     components: {
         ProcessList,
-        ActivityManager,
+
         ProcessMonitor,
         ProcessCreator
     },
@@ -71,6 +72,10 @@ export default {
             this.$notify('Proceso creado exitosamente', 'success')
         },
         loadProcesses() {
+            /*   const response = await galaxiaService.getProcesses()
+         if (response.ok) {
+           commit('SET_PROCESSES', response.data)
+         }*/
             this.$store.dispatch('galaxia/loadProcesses')
         }
     },
