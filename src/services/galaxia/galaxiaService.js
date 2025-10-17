@@ -1,182 +1,102 @@
-import { http, httpFile } from "../api";
+// Servicio para manejar llamadas al backend de Galaxia
+import axios from 'axios';
 
-//********* metodos galaxi ver001 */
+const API_URL = '/api/galaxia';
 
-export const galaxiaService = {
+const getInstances = async (filters = {}) => {
+  return await axios.get(`${API_URL}/instances`, { params: filters });
+};
 
-    // ===== PROCESOS =====
-    getProcesses: async () => {
-        const res = await http().get('/galaxia/processes')
-        return res.data
-    },
+const getProcesses = async () => {
+  return await axios.get(`${API_URL}/processes`);
+};
 
-    createProcess: async (processData) => {
-        const res = await http().post('/galaxia/processes', processData)
-        return res.data
-    },
+const getProcess = async (id) => {
+  return await axios.get(`${API_URL}/processes/${id}`);
+};
 
-    getProcessById: async (processId) => {
-        const res = await http().get(`/galaxia/processes/${processId}`)
-        return res.data
-    },
+const validateProcess = async (id) => {
+  return await axios.get(`${API_URL}/processes/${id}/validate`);
+};
 
-    updateProcess: async (processId, data) => {
-        const res = await http().put(`/galaxia/processes/${processId}`, data)
-        return res.data
-    },
+const createProcess = async (data) => {
+  return await axios.post(`${API_URL}/processes`, data);
+};
 
-    // ===== ACTIVIDADES =====
-    getProcessActivities: async (processId) => {
-        const res = await http().get(`/galaxia/processes/${processId}`)
-        return res.data
-    },
+const updateProcess = async (id, data) => {
+  return await axios.put(`${API_URL}/processes/${id}`, data);
+};
 
-    addActivity: async (processId, activityData) => {
-        const res = await http().post(`/galaxia/processes/${processId}/activities`, activityData)
-        return res.data
-    },
+const createActivity = async (processId, data) => {
+  return await axios.post(`${API_URL}/processes/${processId}/activities`, data);
+};
 
-    updateActivity: async (activityId, data) => {
-        const res = await http().put(`/galaxia/activities/${activityId}`, data)
-        return res.data
-    },
+const updateActivity = async (processId, id, data) => {
+  return await axios.put(`${API_URL}/processes/${processId}/activities/${id}`, data);
+};
 
-    // ===== ROLES =====
-    getProcessRoles: async (processId) => {
-        const res = await http().get(`/galaxia/processes/${processId}/roles`)
-        return res.data
-    },
+const createTransition = async (processId, data) => {
+  return await axios.post(`${API_URL}/processes/${processId}/transitions`, data);
+};
 
-    addRole: async (processId, roleData) => {
-        const res = await http().post(`/galaxia/processes/${processId}/roles`, roleData)
-        return res.data
-    },
+const createRole = async (processId, data) => {
+  return await axios.post(`${API_URL}/processes/${processId}/roles`, data);
+};
 
-    // ===== TRANSICIONES =====
-    getProcessTransitions: async (processId) => {
-        const res = await http().get(`/galaxia/processes/${processId}/transitions`)
-        return res.data
-    },
+const createMapping = async (processId, roleId, data) => {
+  return await axios.post(`${API_URL}/processes/${processId}/roles/${roleId}/mappings`, data);
+};
 
-    addTransition: async (processId, transitionData) => {
-        const res = await http().post(`/galaxia/processes/${processId}/transitions`, transitionData)
-        return res.data
-    },
+const getInstance = async (instanceId) => {
+  return await axios.get(`${API_URL}/instances/${instanceId}`);
+};
 
+const getTransitions = async (activityId) => {
+  return await axios.get(`${API_URL}/transitions`, { params: { activityId } });
+};
 
-    // ===== ASIGNACIONES DE ROLES ===== 
-    getRoleAssignments: async (processId, roleId) => {
-        const res = await http().get(`/galaxia/processes/${processId}/roles/${roleId}/assignments`)
-        return res.data
-    },
+const routeInstance = async (instanceId) => {
+  return await axios.post(`${API_URL}/instances/${instanceId}/route`);
+};
 
-    assignRole: async (processId, roleId, users, groups) => {
-        const res = await http().post(`/galaxia/processes/${processId}/roles/${roleId}/assignments`, {
-            users: users || [],
-            groups: groups || []
-        })
-        return res.data
-    },
+const completeActivity = async (instanceId, activityId) => {
+  return await axios.post(`${API_URL}/instances/${instanceId}/activities/${activityId}/complete`);
+};
 
-    removeRoleAssignment: async (processId, roleId, assignmentId) => {
-        const res = await http().delete(`/galaxia/processes/${processId}/roles/${roleId}/assignments/${assignmentId}`)
-        return res.data
-    },
+const setNextActivity = async (instanceId, nextActivityId) => {
+  return await axios.post(`${API_URL}/instances/${instanceId}/activities/set-next`, { nextActivityId });
+};
 
-    // RENOMBRAR addRole → createRole para coincidir con store
-    createRole: async (processId, roleData) => {
-        const res = await http().post(`/galaxia/processes/${processId}/roles`, roleData)
-        return res.data
-    },
+const setNextUser = async (instanceId, activityId, nextUser) => {
+  return await axios.post(`${API_URL}/instances/${instanceId}/activities/${activityId}/set-user`, { nextUser });
+};
 
-    // ===== ROLES EN ACTIVIDADES =====
+const setProperties = async (instanceId, properties) => {
+  return await axios.post(`${API_URL}/instances/${instanceId}/properties`, properties);
+};
 
-    // GET: Obtener roles asignados a una actividad
-    getActivityRoles: async (activityId) => {
-        const res = await http().get(`/galaxia/activities/${activityId}/roles`)
-        return res.data
-    },
+const submitForm = async (instanceId, activityId, formData) => {
+  return await axios.post(`${API_URL}/instances/${instanceId}/activities/${activityId}/submit-form`, formData);
+};
 
-    // POST: Asignar/actualizar roles a una actividad
-    assignRolesToActivity: async (activityId, roleIds) => {
-        const res = await http().post(`/galaxia/activities/${activityId}/roles`, {
-            roleIds: roleIds
-        })
-        return res.data
-    },
-
-    // ===== TRANSICIONES =====
-    getProcessTransitions: async (processId) => {
-        const res = await http().get(`/galaxia/processes/${processId}/transitions`)
-        return res.data
-    },
-
-    addTransition: async (processId, fromActivityId, toActivityId) => {
-        const res = await http().post(`/galaxia/processes/${processId}/transitions`, {
-            fromActivityId,
-            toActivityId
-        })
-        return res.data
-    },
-
-    deleteTransition: async (processId, fromActivityId, toActivityId) => {
-        const res = await http().delete(`/galaxia/processes/${processId}/transitions/${fromActivityId}/${toActivityId}`)
-        return res.data
-    },
-
-    // ===== VALIDACIÓN Y ACTIVACIÓN =====
-    validateProcess: async (processId) => {
-        const res = await http().post(`/galaxia/processes/${processId}/validate`)
-        return res.data
-    },
-
-    activateProcess: async (processId) => {
-        const res = await http().post(`/galaxia/processes/${processId}/activate`)
-        return res.data
-    },
-    deactivateProcess: async (processId) => {
-        const res = await http().post(`/galaxia/processes/${processId}/deactivate`)
-        return res.data
-    },
-
-    // ===== INSTANCIAS =====
-    getInstances: async () => {
-        const res = await http().get('/galaxia/instances')
-        return res.data
-    },
-
-    startInstance: async (processId, name) => {
-        const res = await http().post('/galaxia/instances', { processId, name })
-        return res.data
-    },
-
-    abortInstance: async (instanceId) => {
-        const res = await http().post(`/galaxia/instances/${instanceId}/abort`)
-        return res.data
-    },
-
-    // ===== USER DASHBOARD =====
-    getUserWorkitems: async (userId) => {
-        const res = await http().get(`/galaxia/users/${userId}/workitems`)
-        return res.data
-    },
-
-    getUserInstances: async (userId) => {
-        const res = await http().get(`/galaxia/users/${userId}/instances`)
-        return res.data
-    },
-
-    getUserStats: async (userId) => {
-        const res = await http().get(`/galaxia/users/${userId}/stats`)
-        return res.data
-    },
-
-    executeWorkitem: async (workitemId, userId, inputData) => {
-        const res = await http().post(`/galaxia/workitems/${workitemId}/execute`, {
-            userId,
-            inputData
-        })
-        return res.data
-    }
-
-}
+export default {
+  getInstances,
+  getProcesses,
+  getProcess,
+  validateProcess,
+  createProcess,
+  updateProcess,
+  createActivity,
+  updateActivity,
+  createTransition,
+  createRole,
+  createMapping,
+  getInstance,
+  getTransitions,
+  routeInstance,
+  completeActivity,
+  setNextActivity,
+  setNextUser,
+  setProperties,
+  submitForm
+};
